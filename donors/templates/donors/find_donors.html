@@ -1,0 +1,100 @@
+{% extends "donors/base.html" %}
+{% block title %}Find Donors{% endblock %}
+{% block meta_description %}Search for available blood donors by blood group, city, and locality on BloodLink.{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Find Donors</h1>
+      <p>Search for available blood donors in your area.</p>
+    </div>
+  </div>
+  <div class="filter-bar" role="search" aria-label="Donor search filters">
+    <form method="GET" action="{% url 'find_donors' %}">
+      <div class="form-group">
+        <label for="blood_group">Blood Group</label>
+        <select id="blood_group" name="blood_group" class="form-control">
+          <option value="">All Groups</option>
+          {% for val, label in blood_groups %}
+            <option value="{{ val }}" {% if selected_blood_group == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" class="form-control"
+               value="{{ selected_city|default:'' }}" placeholder="e.g. Hyderabad" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="locality">Locality</label>
+        <input type="text" id="locality" name="locality" class="form-control"
+               value="{{ selected_locality|default:'' }}" placeholder="e.g. Banjara Hills" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="available_only">Availability</label>
+        <select id="available_only" name="available_only" class="form-control">
+          <option value="1" {% if selected_available == '1' %}selected{% endif %}>Available only</option>
+          <option value="0" {% if selected_available == '0' %}selected{% endif %}>All donors</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-search-donors">Search</button>
+      <a href="{% url 'find_donors' %}" class="btn btn-gray" id="btn-clear-search">Clear</a>
+    </form>
+  </div>
+  {% if donors %}
+    <p class="text-muted mb-2">Showing <strong>{{ donors.paginator.count }}</strong> donor{{ donors.paginator.count|pluralize }} matching your search.</p>
+    <div class="donor-grid" aria-live="polite">
+      {% for d in donors %}
+      <div class="donor-card">
+        <div class="blood-badge" aria-label="Blood group {{ d.blood_group }}">{{ d.blood_group }}</div>
+        <div class="donor-info">
+          <h3>{{ d.user.username }}</h3>
+          <div class="donor-meta">
+            <span>{{ d.locality }}, {{ d.city }}</span>
+          </div>
+          <span class="badge {% if d.is_available %}badge-available{% else %}badge-unavailable{% endif %}">
+            {% if d.is_available %}Available{% else %}Unavailable{% endif %}
+          </span>
+          {% if user.is_authenticated and d.is_available %}
+            <p style="font-size:.8rem;color:var(--gray-600);margin-top:8px;">{{ d.phone }}</p>
+          {% elif d.is_available %}
+            <p style="font-size:.78rem;color:var(--gray-500);margin-top:8px;"><a href="{% url 'login' %}">Sign in</a> to view contact</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if donors.has_other_pages %}
+    <nav class="pagination" aria-label="Pagination">
+      {% if donors.has_previous %}
+        <a href="?{{ query_string }}&page={{ donors.previous_page_number }}" aria-label="Previous page">&laquo;</a>
+      {% endif %}
+      {% for num in donors.paginator.page_range %}
+        {% if donors.number == num %}
+          <span class="current" aria-current="page">{{ num }}</span>
+        {% else %}
+          <a href="?{{ query_string }}&page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if donors.has_next %}
+        <a href="?{{ query_string }}&page={{ donors.next_page_number }}" aria-label="Next page">&raquo;</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+  {% elif searched %}
+    <div class="empty-state">
+      <h3>No donors found</h3>
+      <p>No donors match your current filters. Try broadening your search or checking back later.</p>
+      <a href="{% url 'find_donors' %}" class="btn btn-outline-dark" id="btn-reset-search">Reset Search</a>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>Search for donors</h3>
+      <p>Use the filters above to find available blood donors near you.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

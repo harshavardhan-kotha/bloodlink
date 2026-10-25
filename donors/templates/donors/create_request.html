@@ -1,0 +1,80 @@
+{% extends "donors/base.html" %}
+{% block title %}Create Blood Request{% endblock %}
+{% block meta_description %}Post a new blood donation request on BloodLink to find donors quickly.{% endblock %}
+
+{% block content %}
+<div class="page-narrow">
+  <div class="form-card">
+    <div style="margin-bottom:28px;">
+      <h1 class="form-title">Create Blood Request</h1>
+      <p class="form-subtitle">Fill in the details below so volunteer donors can find and respond to your request.</p>
+    </div>
+
+    {% if errors %}
+      {% for err in errors %}
+        <div class="alert alert-error" role="alert">{{ err }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'create_request' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="blood_group">Blood Group Needed <span class="required">*</span></label>
+          <select id="blood_group" name="blood_group" class="form-control" required>
+            <option value="">Select</option>
+            {% for val, label in blood_groups %}
+              <option value="{{ val }}" {% if form_data.blood_group == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="units_needed">Units Required <span class="required">*</span></label>
+          <input type="number" id="units_needed" name="units_needed" class="form-control"
+                 value="{{ form_data.units_needed|default:1 }}"
+                 min="1" max="20" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="hospital">Hospital Name <span class="required">*</span></label>
+        <input type="text" id="hospital" name="hospital" class="form-control"
+               value="{{ form_data.hospital|default:'' }}"
+               required maxlength="200"
+               placeholder="e.g. Apollo Hospital">
+      </div>
+
+      <div class="form-group">
+        <label for="city">City <span class="required">*</span></label>
+        <input type="text" id="city" name="city" class="form-control"
+               value="{{ form_data.city|default:'' }}"
+               required maxlength="100"
+               placeholder="e.g. Hyderabad">
+      </div>
+
+      <div class="form-group">
+        <label for="urgency">Urgency Level <span class="required">*</span></label>
+        <select id="urgency" name="urgency" class="form-control" required>
+          <option value="Normal"    {% if form_data.urgency == 'Normal'    %}selected{% endif %}>Normal</option>
+          <option value="Urgent"    {% if form_data.urgency == 'Urgent'    %}selected{% endif %}>Urgent</option>
+          <option value="Emergency" {% if form_data.urgency == 'Emergency' %}selected{% endif %}>Emergency</option>
+        </select>
+      </div>
+
+      <div class="alert alert-warning" role="note" style="margin-bottom:20px;">
+        For a medical emergency, please contact your hospital or blood bank directly and call emergency services.
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-submit-request">
+        Submit Request
+      </button>
+    </form>
+
+    <hr class="divider">
+    <p class="text-center text-muted">
+      <a href="{% url 'request_list' %}">View all blood requests</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

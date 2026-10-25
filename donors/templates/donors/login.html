@@ -1,0 +1,44 @@
+{% extends "donors/base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block meta_description %}Sign in to your BloodLink account to manage your donor profile and blood requests.{% endblock %}
+
+{% block content %}
+<div class="page-narrow">
+  <div class="form-card">
+    <div style="text-align:center;margin-bottom:28px;">
+      <h1 class="form-title">Welcome Back</h1>
+      <p class="form-subtitle">Sign in to your BloodLink account.</p>
+    </div>
+
+    {% if error %}
+      <div class="alert alert-error" role="alert">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="form-group">
+        <label for="username">Username <span class="required">*</span></label>
+        <input type="text" id="username" name="username" class="form-control"
+               value="{{ form_username|default:'' }}"
+               required autocomplete="username"
+               placeholder="Your username">
+      </div>
+     <div class="form-group">
+        <label for="password">Password <span class="required">*</span></label>
+        <input type="password" id="password" name="password" class="form-control"
+               required autocomplete="current-password"
+               placeholder="Your password">
+      </div>
+     <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-login" style="margin-top:8px;">
+        Sign In
+      </button>
+    </form>
+    <hr class="divider">
+    <p class="text-center text-muted">
+      New to BloodLink? <a href="{% url 'register' %}">Create a free account</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

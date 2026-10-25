@@ -1,0 +1,83 @@
+{% extends "donors/base.html" %}
+{% block title %}Request Details{% endblock %}
+
+{% block content %}
+<div class="page-md">
+  <div class="page-header">
+    <div>
+      <h1>Blood Request Details</h1>
+      <p>Posted on {{ blood_request.created_at|date:"d M Y, H:i" }}</p>
+    </div>
+    <a href="{% url 'request_list' %}" class="btn btn-outline-dark btn-sm">All Requests</a>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="flex items-center gap-1 mb-3" style="gap:20px;flex-wrap:wrap;">
+        <div class="blood-badge lg">{{ blood_request.blood_group }}</div>
+        <div>
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--gray-900);">{{ blood_request.hospital }}</h2>
+          <p class="text-muted">{{ blood_request.city }}</p>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="badge badge-{{ blood_request.urgency|lower }}">{{ blood_request.urgency }}</span>
+          <span class="badge badge-{{ blood_request.status|lower }}">{{ blood_request.status }}</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;">
+        <div>
+          <p class="text-muted" style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Units Needed</p>
+          <p style="font-size:1.4rem;font-weight:800;color:var(--red-800);">{{ blood_request.units_needed }}</p>
+        </div>
+        <div>
+          <p class="text-muted" style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Urgency Level</p>
+          <p class="urgency-{{ blood_request.urgency }}" style="font-size:1rem;font-weight:700;">{{ blood_request.urgency }}</p>
+        </div>
+        <div>
+          <p class="text-muted" style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Current Status</p>
+          <span class="badge badge-{{ blood_request.status|lower }}">{{ blood_request.status }}</span>
+        </div>
+        <div>
+          <p class="text-muted" style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Posted</p>
+          <p style="font-size:.9rem;">{{ blood_request.created_at|date:"d M Y" }}</p>
+        </div>
+      </div>
+    </div>
+
+    {% if is_owner %}
+    <div class="card-footer">
+      <div class="flex gap-1 flex-wrap">
+        <strong style="font-size:.9rem;align-self:center;">Update Status:</strong>
+        {% if blood_request.status == 'Pending' %}
+          <form method="POST" action="{% url 'update_request_status' blood_request.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Accepted">
+            <button class="btn btn-sm btn-success" type="submit" id="btn-accept">Mark Accepted</button>
+          </form>
+          <form method="POST" action="{% url 'update_request_status' blood_request.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Cancelled">
+            <button class="btn btn-sm btn-gray" type="submit" id="btn-cancel">Cancel Request</button>
+          </form>
+        {% elif blood_request.status == 'Accepted' %}
+          <form method="POST" action="{% url 'update_request_status' blood_request.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Fulfilled">
+            <button class="btn btn-sm btn-success" type="submit" id="btn-fulfill">Mark Fulfilled</button>
+          </form>
+        {% else %}
+          <p class="text-muted" style="font-size:.85rem;align-self:center;">This request is <strong>{{ blood_request.status }}</strong> and cannot be updated further.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="alert alert-info" role="note">
+    <strong>Note:</strong> Contact your nearest blood bank or the hospital directly. Blood group compatibility must be confirmed by qualified medical professionals before donation.
+  </div>
+</div>
+{% endblock %}

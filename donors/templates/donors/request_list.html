@@ -1,0 +1,120 @@
+{% extends "donors/base.html" %}
+{% block title %}Blood Requests{% endblock %}
+{% block meta_description %}Browse open blood donation requests on BloodLink and help save lives.{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Blood Requests</h1>
+      <p>Open requests for blood donations in various cities.</p>
+    </div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'create_request' %}" class="btn btn-primary" id="btn-post-request">Post a Request</a>
+    {% else %}
+      <a href="{% url 'login' %}?next={% url 'create_request' %}" class="btn btn-primary">Post a Request</a>
+    {% endif %}
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar" role="search" aria-label="Request filters">
+    <form method="GET">
+      <div class="form-group">
+        <label for="blood_group">Blood Group</label>
+        <select id="blood_group" name="blood_group" class="form-control">
+          <option value="">All Groups</option>
+          {% for val, label in blood_groups %}
+            <option value="{{ val }}" {% if selected_blood_group == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" class="form-control"
+               value="{{ selected_city|default:'' }}" placeholder="Filter by city" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="urgency">Urgency</label>
+        <select id="urgency" name="urgency" class="form-control">
+          <option value="">Any Urgency</option>
+          <option value="Emergency" {% if selected_urgency == 'Emergency' %}selected{% endif %}>Emergency</option>
+          <option value="Urgent"    {% if selected_urgency == 'Urgent'    %}selected{% endif %}>Urgent</option>
+          <option value="Normal"    {% if selected_urgency == 'Normal'    %}selected{% endif %}>Normal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status" class="form-control">
+          <option value="Pending" {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value=""        {% if selected_status == ''         %}selected{% endif %}>All Statuses</option>
+          <option value="Accepted"  {% if selected_status == 'Accepted'  %}selected{% endif %}>Accepted</option>
+          <option value="Fulfilled" {% if selected_status == 'Fulfilled' %}selected{% endif %}>Fulfilled</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-filter-requests">Filter</button>
+      <a href="{% url 'request_list' %}" class="btn btn-gray">Clear</a>
+    </form>
+  </div>
+
+  {% if requests %}
+    <p class="text-muted mb-2">{{ requests.paginator.count }} request{{ requests.paginator.count|pluralize }} found.</p>
+    <div class="table-wrapper">
+      <table aria-label="Blood requests">
+        <thead>
+          <tr>
+            <th>Blood</th>
+            <th>Hospital / City</th>
+            <th>Units</th>
+            <th>Urgency</th>
+            <th>Status</th>
+            <th>Posted</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in requests %}
+          <tr>
+            <td><span class="blood-badge" style="width:40px;height:40px;font-size:.8rem;">{{ req.blood_group }}</span></td>
+            <td>
+              <strong>{{ req.hospital }}</strong><br>
+              <span class="text-muted">{{ req.city }}</span>
+            </td>
+            <td>{{ req.units_needed }}</td>
+            <td><span class="badge badge-{{ req.urgency|lower }}">{{ req.urgency }}</span></td>
+            <td><span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></td>
+            <td class="text-muted">{{ req.created_at|date:"d M Y" }}</td>
+            <td>
+              <a href="{% url 'request_detail' req.pk %}" class="btn btn-sm btn-outline-dark">Details</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if requests.has_other_pages %}
+    <nav class="pagination" aria-label="Pagination">
+      {% if requests.has_previous %}
+        <a href="?{{ query_string }}&page={{ requests.previous_page_number }}">&laquo;</a>
+      {% endif %}
+      {% for num in requests.paginator.page_range %}
+        {% if requests.number == num %}
+          <span class="current" aria-current="page">{{ num }}</span>
+        {% else %}
+          <a href="?{{ query_string }}&page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if requests.has_next %}
+        <a href="?{{ query_string }}&page={{ requests.next_page_number }}">&raquo;</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-state">
+      <h3>No requests found</h3>
+      <p>No blood requests match your filters. Check back later or post your own request.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

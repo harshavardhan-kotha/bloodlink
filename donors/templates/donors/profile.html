@@ -1,0 +1,69 @@
+{% extends "donors/base.html" %}
+{% block title %}My Donor Profile{% endblock %}
+
+{% block content %}
+<div class="page-md">
+  <div class="page-header">
+    <div>
+      <h1>My Donor Profile</h1>
+      <p>Keep your information up to date so donors or requesters can reach you.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-dark btn-sm">Back to Dashboard</a>
+  </div>
+
+  <div class="form-card">
+    {% if errors %}
+      {% for err in errors %}
+        <div class="alert alert-error" role="alert">{{ err }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'profile' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="blood_group">Blood Group <span class="required">*</span></label>
+        <select id="blood_group" name="blood_group" class="form-control" required>
+          {% for val, label in blood_groups %}
+            <option value="{{ val }}" {% if profile.blood_group == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City <span class="required">*</span></label>
+          <input type="text" id="city" name="city" class="form-control"
+                 value="{{ profile.city }}" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="locality">Locality / Area <span class="required">*</span></label>
+          <input type="text" id="locality" name="locality" class="form-control"
+                 value="{{ profile.locality }}" required maxlength="100">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number <span class="required">*</span></label>
+        <input type="tel" id="phone" name="phone" class="form-control"
+               value="{{ profile.phone }}" required maxlength="15"
+               pattern="[0-9+\-\s]{7,15}">
+      </div>
+
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+        <input type="checkbox" id="is_available" name="is_available"
+               {% if profile.is_available %}checked{% endif %}
+               style="width:20px;height:20px;accent-color:var(--red-800);cursor:pointer;">
+        <label for="is_available" style="margin:0;font-weight:600;cursor:pointer;">
+          I am currently available to donate blood
+        </label>
+      </div>
+      <p class="text-muted mb-2" style="font-size:.82rem;">
+        Uncheck this if you are temporarily unable to donate (recent donation, illness, travel, etc.)
+      </p>
+
+      <button type="submit" class="btn btn-primary btn-lg" id="btn-save-profile">Save Profile</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

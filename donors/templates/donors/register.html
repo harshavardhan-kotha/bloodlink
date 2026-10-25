@@ -1,0 +1,101 @@
+{% extends "donors/base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block meta_description %}Register as a blood donor on BloodLink and help save lives in your community.{% endblock %}
+
+{% block content %}
+<div class="page-narrow">
+  <div class="form-card">
+    <div style="text-align:center;margin-bottom:28px;">
+      <h1 class="form-title">Create Your Account</h1>
+      <p class="form-subtitle">Join BloodLink and help save lives in your community.</p>
+    </div>
+
+    {% if errors %}
+      {% for err in errors %}
+        <div class="alert alert-error" role="alert">⚠️ {{ err }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'register' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="username">Username <span class="required">*</span></label>
+          <input type="text" id="username" name="username" class="form-control"
+                 value="{{ form_data.username|default:'' }}"
+                 required autocomplete="username" maxlength="150"
+                 placeholder="e.g. john_doe">
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" class="form-control"
+                 value="{{ form_data.email|default:'' }}"
+                 required autocomplete="email"
+                 placeholder="you@example.com">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password <span class="required">*</span></label>
+          <input type="password" id="password" name="password" class="form-control"
+                 required minlength="8" autocomplete="new-password"
+                 placeholder="At least 8 characters">
+        </div>
+        <div class="form-group">
+          <label for="password2">Confirm Password <span class="required">*</span></label>
+          <input type="password" id="password2" name="password2" class="form-control"
+                 required minlength="8" autocomplete="new-password"
+                 placeholder="Repeat password">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="blood_group">Blood Group <span class="required">*</span></label>
+        <select id="blood_group" name="blood_group" class="form-control" required>
+          <option value="">— Select your blood group —</option>
+          {% for val, label in blood_groups %}
+            <option value="{{ val }}" {% if form_data.blood_group == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City <span class="required">*</span></label>
+          <input type="text" id="city" name="city" class="form-control"
+                 value="{{ form_data.city|default:'' }}"
+                 required maxlength="100"
+                 placeholder="e.g. Hyderabad">
+        </div>
+        <div class="form-group">
+          <label for="locality">Locality / Area <span class="required">*</span></label>
+          <input type="text" id="locality" name="locality" class="form-control"
+                 value="{{ form_data.locality|default:'' }}"
+                 required maxlength="100"
+                 placeholder="e.g. Banjara Hills">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number <span class="required">*</span></label>
+        <input type="tel" id="phone" name="phone" class="form-control"
+               value="{{ form_data.phone|default:'' }}"
+               required maxlength="15"
+               placeholder="e.g. 9876543210"
+               pattern="[0-9+\-\s]{7,15}">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-register" style="margin-top:8px;">
+        Create Account
+      </button>
+    </form>
+
+    <hr class="divider">
+    <p class="text-center text-muted">
+      Already have an account? <a href="{% url 'login' %}">Sign in here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

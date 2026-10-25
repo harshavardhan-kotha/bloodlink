@@ -1,0 +1,63 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}BloodLink — Find blood donors and manage donation requests across your city.{% endblock %}">
+  <title>{% block title %}BloodLink{% endblock %} | BloodLink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/bloodlink.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="{% url 'home' %}" class="nav-brand" aria-label="BloodLink home">
+      <span>Blood<span class="drop">Link</span></span>
+    </a>
+    <ul class="nav-links" id="nav-links" role="list">
+      <li><a href="{% url 'home' %}"           {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
+      <li><a href="{% url 'find_donors' %}"    {% if request.resolver_match.url_name == 'find_donors' %}class="active"{% endif %}>Find Donors</a></li>
+      <li><a href="{% url 'request_list' %}"   {% if request.resolver_match.url_name == 'request_list' %}class="active"{% endif %}>Blood Requests</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'dashboard' %}"    {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+        <li>
+          <form method="post" action="{% url 'logout' %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-nav-cta" style="font-size:.9rem">Logout</button>
+          </form>
+        </li>
+      {% else %}
+        <li><a href="{% url 'login' %}"        {% if request.resolver_match.url_name == 'login' %}class="active"{% endif %}>Login</a></li>
+        <li><a href="{% url 'register' %}" class="btn btn-sm btn-nav-cta">Register</a></li>
+      {% endif %}
+    </ul>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+{% if messages %}
+<div style="max-width:1140px;margin:16px auto;padding:0 24px;" role="alert" aria-live="polite">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% block content %}{% endblock %}
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  if (toggle && links) {
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  }
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "donors/base.html" %}
+{% block title %}Home{% endblock %}
+{% block meta_description %}BloodLink — Find blood donors and submit blood requests in your city. Connecting donors with those in need.{% endblock %}
+
+{% block content %}
+<section class="hero" aria-labelledby="hero-heading">
+  <h1 id="hero-heading">Every Drop Counts.<br>Find a Donor Today.</h1>
+  <p>BloodLink connects voluntary blood donors with patients in need — quickly, transparently, and safely.</p>
+  <div class="hero-actions">
+    <a href="{% url 'find_donors' %}" class="btn btn-outline" id="hero-find-donors">Find Donors</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'create_request' %}" class="btn btn-primary" id="hero-request-blood" style="background:white;color:var(--red-800);">Post a Request</a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn btn-primary" id="hero-register" style="background:white;color:var(--red-800);">Join as Donor</a>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

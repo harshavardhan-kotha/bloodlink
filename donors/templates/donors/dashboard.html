@@ -1,0 +1,109 @@
+{% extends "donors/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-md" style="margin-top:24px;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+    <div>
+      <h1 style="font-size:1.75rem;margin:0 0 4px 0;">Dashboard</h1>
+      <p style="color:#64748b;margin:0;">Welcome, <strong>{{ user.username }}</strong></p>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="{% url 'create_request' %}" class="btn btn-primary" id="btn-new-request">New Blood Request</a>
+      <a href="{% url 'find_donors' %}" class="btn btn-outline-dark" id="btn-find-donors">Find Donors</a>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="font-size:1.15rem;margin:0;">My Profile Details</h2>
+      <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-dark" id="btn-edit-profile">Edit Profile</a>
+    </div>
+    <div class="card-body">
+      {% if profile %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;">
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Username:</strong>
+            <span>{{ user.username }}</span>
+          </div>
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Email:</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Blood Group:</strong>
+            <span style="font-weight:700;color:#b71c1c;">{{ profile.blood_group }}</span>
+          </div>
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Phone:</strong>
+            <span>{{ profile.phone }}</span>
+          </div>
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Location:</strong>
+            <span>{{ profile.locality }}, {{ profile.city }}</span>
+          </div>
+          <div>
+            <strong style="color:#64748b;font-size:0.85rem;display:block;">Availability:</strong>
+            {% if profile.is_available %}
+              <span style="color:#15803d;font-weight:600;">Available to donate</span>
+            {% else %}
+              <span style="color:#b91c1c;font-weight:600;">Not available</span>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <p style="margin:0;">No donor profile created yet. <a href="{% url 'profile' %}">Create profile</a></p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="font-size:1.15rem;margin:0;">My Blood Requests</h2>
+      <a href="{% url 'create_request' %}" class="btn btn-sm btn-primary">+ Post Request</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+      {% if my_requests %}
+        <div class="table-wrapper" style="border:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Blood Group</th>
+                <th>Hospital</th>
+                <th>City</th>
+                <th>Units</th>
+                <th>Urgency</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in my_requests %}
+              <tr>
+                <td><strong>{{ req.blood_group }}</strong></td>
+                <td>{{ req.hospital }}</td>
+                <td>{{ req.city }}</td>
+                <td>{{ req.units_needed }}</td>
+                <td>{{ req.urgency }}</td>
+                <td>{{ req.status }}</td>
+                <td style="color:#64748b;">{{ req.created_at|date:"d M Y" }}</td>
+                <td>
+                  <a href="{% url 'request_detail' req.pk %}" class="btn btn-sm btn-gray">View</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="padding:32px;text-align:center;">
+          <p style="color:#64748b;margin-bottom:12px;">You have not posted any blood requests yet.</p>
+          <a href="{% url 'create_request' %}" class="btn btn-sm btn-primary">Create Your First Request</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
